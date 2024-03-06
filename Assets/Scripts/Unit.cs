@@ -2,18 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Unit : RootBehaiour
+public abstract class Unit : RootBehaiour
 {    
-    [SerializeField]
-    Ability originStatus;        // 기본 수치.
-    
-    private Ability increaseStatus { get; set; }  // 증가 수치.
-    protected Ability finalStatus { get; set; }     // 최종 수치.
+    [SerializeField] 
+    Ability origin;        // 기본 수치.
 
-    public float maxHp => finalStatus.hp;
-    public float power => finalStatus.power;
-    public float speed => finalStatus.speed;
-    public float cooltime => finalStatus.cooltime;
+    // 최종 어빌리티 수치.
+    private Ability ability;
+    public float maxHp => ability.hp;
+    public float power => ability.power;
+    public float speed => ability.speed;
+    public float cooltime => ability.cooltime;
     public bool isAlive => hp > 0;
 
     protected float hp;       // 체력
@@ -29,9 +28,9 @@ public class Unit : RootBehaiour
         hp = int.MaxValue;
         level = 1;
         exp = 0;
-        killCount = 0;                
+        killCount = 0;
 
-        UpdateStatus();
+        UpdateAbility();
     }
 
     protected override void OnPauseGame(bool isPause)
@@ -39,28 +38,44 @@ public class Unit : RootBehaiour
         base.OnPauseGame(isPause);
         anim.speed = isPause ? 0f : 1f;
     }
-    protected virtual void UpdateStatus()
+
+    // 경험치&레벨
+    protected virtual void AddExp(int amount)
+    {
+        exp += amount;
+        if (exp >= NeedTotalExp(level + 1))
+        {
+            level++;
+            LevelUp();
+        }                
+    }
+    protected virtual void LevelUp()
+    {
+
+    }
+    protected int NeedTotalExp(int level)
+    {
+        if (level <= 0)
+            return 0;
+
+        return Mathf.RoundToInt(5000f / 11 * (Mathf.Pow(1.11f, level - 1) - 1));
+    }
+
+    // 능력치 계산
+    protected virtual void UpdateAbility()
     {
         // 실제 적용 스테이터스 계산.
-        finalStatus = originStatus + increaseStatus;
+        ability = origin + GetIncrease();
         hp = Mathf.Clamp(hp, 0, maxHp);
     }
+    protected abstract Ability GetIncrease();
 
-    protected void ResetIncrease()
+    public WeaponStatus ApplyAbility(WeaponStatus status)
     {
-        increaseStatus = new Ability();
-    }
-    protected void AddIncrease(Ability ability)
-    {
-        increaseStatus += ability;
+        return status * ability;
     }
 
-
-    // 무기가 사용자의 Ability를 적용시키는 함수.
-    public WeaponStatus ApplyAbility(WeaponStatus target)
-    {
-        return target * finalStatus;
-    }
+    // 피격, 데미지 계산
     public virtual void TakeDamage(float power, float knockback = 0f)
     {
         if (!isAlive)
@@ -77,7 +92,6 @@ public class Unit : RootBehaiour
         else
             Hit(knockback);
     }
-
     protected virtual void Dead()
     {
     }

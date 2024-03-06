@@ -8,6 +8,7 @@ public class Enemy : Unit
 
     SpriteRenderer spriteRenderer;
     Rigidbody2D rigid;
+    Player target;
 
     float delayTime;
 
@@ -20,19 +21,17 @@ public class Enemy : Unit
         delayTime = cooltime;
     }
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!isAlive || delayTime > 0f)
-            return;
-
-        Player.Instance.TakeDamage(power);
-        delayTime = cooltime;
+        Player player = collision.GetComponent<Player>();
+        if (player != null)
+            target = player;
     }
-
-    protected override void OnPauseGame(bool isPause)
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        base.OnPauseGame(isPause);
-        rigid.constraints = isPause ? RigidbodyConstraints2D.FreezeAll : RigidbodyConstraints2D.None;
+        Player player = collision.GetComponent<Player>();
+        if (player != null)
+            target = null;
     }
 
     void Update()
@@ -43,9 +42,8 @@ public class Enemy : Unit
 
         if (!isAlive || isPauseObject)
             return;
-                
-        if(delayTime > 0f)
-            delayTime = Mathf.Clamp(delayTime - Time.deltaTime, 0.0f, cooltime);
+
+        AttackToPlayer();
 
         rigid.velocity = Vector2.MoveTowards(rigid.velocity, Vector2.zero, Time.deltaTime * 8f);
         
@@ -56,6 +54,33 @@ public class Enemy : Unit
         // 넉백이 없을 때 (= 밀림이 없을 때)에만 움직일 수 있다.
         if (rigid.velocity == Vector2.zero)
             transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+    }
+
+    private void AttackToPlayer()
+    {
+        if (delayTime > 0f)
+        {
+            delayTime = Mathf.Clamp(delayTime - Time.deltaTime, 0.0f, cooltime);
+            return;
+        }
+
+        if (target != null)
+        {
+            target.TakeDamage(power);
+            delayTime = cooltime;
+        }
+    }
+
+    protected override void OnPauseGame(bool isPause)
+    {
+        base.OnPauseGame(isPause);
+        rigid.constraints = isPause ? RigidbodyConstraints2D.FreezeAll : RigidbodyConstraints2D.None;
+    }
+
+
+    protected override Ability GetIncrease()
+    {
+        return new Ability();
     }
 
     public override void TakeDamage(float power, float knockback = 0)

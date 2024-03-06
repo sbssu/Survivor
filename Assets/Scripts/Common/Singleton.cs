@@ -15,10 +15,6 @@ public class Singleton<T> : MonoBehaviour
             if (instance == null)
                 instance = GameObject.FindObjectOfType<T>();
 
-            // 그래도 없으면 만든다.
-            if (instance == null)
-                instance = new GameObject("BlockManager").AddComponent<T>();
-
             return instance;
         }
     }

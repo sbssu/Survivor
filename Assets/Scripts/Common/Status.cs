@@ -1,8 +1,4 @@
-[System.Serializable] public class Status
-{
-
-}
-[System.Serializable] public class Ability : Status
+[System.Serializable] public class Ability
 {
     public float hp;        // 체력.
     public float power;     // 공격력.
@@ -19,7 +15,7 @@
         return newAbility;
     }
 }
-[System.Serializable] public class WeaponStatus : Status
+[System.Serializable] public class WeaponStatus
 {
     public float power;                 // 공격력.
     public float projectileCount;       // 투사체 개수.
@@ -27,7 +23,6 @@
     public float cooltime;              // 쿨타임.
     public float knockback;             // 넉백 수치.
     public float penetrate;             // 관통력.
-
 
     public static WeaponStatus operator *(WeaponStatus origin, Ability target)
     {

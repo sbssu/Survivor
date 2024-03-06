@@ -13,15 +13,10 @@ public class Gun : WeaponObject
 
     private float fireRange;
 
-    protected new void Start()
-    {
-        base.Start();
-        fireRange = Camera.main.orthographicSize * 2f * (Screen.width / (float)Screen.height);
-    }
-
     // √ ±‚»≠.
     protected override void Initialize()
     {
+        fireRange = Camera.main.orthographicSize * 2f * (Screen.width / (float)Screen.height);
         prefab.gameObject.SetActive(false);
     }
     protected override IEnumerator IEAttack()

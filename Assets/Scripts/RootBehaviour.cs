@@ -13,7 +13,8 @@ public class RootBehaiour: MonoBehaviour
 
     private void OnDestroy()
     {
-        GameManager.Instance.onPauseGame -= OnPauseGame;
+        if(GameManager.Instance != null)
+            GameManager.Instance.onPauseGame -= OnPauseGame;
     }
 
     protected virtual void OnPauseGame(bool isPause)

@@ -8,33 +8,30 @@ public abstract class Item
     public string id;           // 고유 아이디.
     public string description;  // 설명.
     public Sprite iconSprite;   // 아이콘 스프라이트.
-    public int level;
 
-    public virtual Item Copy() { return null; }
+    [HideInInspector]
+    public int level;           // 레벨.
 
-    public abstract Status GetStatus();
+    public Item()
+    {
+        itemName = string.Empty;
+        id = string.Empty;
+        description = string.Empty;
+        iconSprite = null;
+        level = 0;
+    }
 }
 
 [System.Serializable]
 public class PassiveItem : Item
 {
-    public Ability status; // 기본 능력치.
+    public Ability ability;     // 능력치.
 
-    public override Status GetStatus()
+    public PassiveItem() : base()
     {
-        return status;
+        ability = new Ability();
     }
-    public override Item Copy()
-    {
-        PassiveItem newItem = new PassiveItem();
-        newItem.itemName = itemName;
-        newItem.id = id;
-        newItem.description = description;
-        newItem.iconSprite = iconSprite;
-        newItem.status = status;
-        newItem.level = level;
-        return newItem;
-    }
+
 }
 
 [System.Serializable]
@@ -42,27 +39,18 @@ public class WeaponItem : Item
 {
     [Header("Weapon")]
     public Sprite handSprite;                   // 장비 스프라이트.
-    public WeaponObject weaponPrefab;                 // 무기 프리팹.
+    public WeaponObject weaponPrefab;           // 무기 프리팹.
 
-    [SerializeField] WeaponStatus origin;       // 능력치.
-    [SerializeField] WeaponStatus grow;         // 성장치.
+    [SerializeField] WeaponStatus origin;       // 기본 능력치.
+    [SerializeField] WeaponStatus grow;         // 레벨별 성장치.
 
-    public override Status GetStatus()
+    public WeaponStatus status => origin + (grow * (level - 1));
+
+    public WeaponItem() : base()
     {
-        return origin + (grow * (level - 1));
-    }
-
-    public override Item Copy()
-    {
-        WeaponItem newItem = new WeaponItem();
-        newItem.itemName = itemName;
-        newItem.id = id;
-        newItem.description = description;
-        newItem.iconSprite = iconSprite;
-        newItem.handSprite = handSprite;
-        newItem.origin = origin;
-        newItem.grow = grow;
-        newItem.level = level;
-        return newItem;
+        handSprite = null;
+        weaponPrefab = null;
+        origin = new WeaponStatus();
+        grow = new WeaponStatus();
     }
 }

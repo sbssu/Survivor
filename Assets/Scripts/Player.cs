@@ -10,29 +10,25 @@ public class Player : Unit
 
     [SerializeField] float magnetRange;
 
-    SpriteRenderer spriteRenderer;
-    LayerMask expMask;
-
-    List<Item> inventory;           // 소지 아이템의 정보.
-    List<WeaponObject> equipWeapons;      // 장비 아이템.
+    List<Item> inventory;                   // 소지 아이템의 정보.
+    List<WeaponObject> weaponList;          // 무기 오브젝트.
+    SpriteRenderer spriteRenderer;          // 스프라이트 컨포넌트.
+    LayerMask expMask;                      // 경험치 마스크.
 
     private void Awake()
     {
         Instance = this;
+        inventory = new List<Item>();
+        weaponList = new List<WeaponObject>();
+        direction = Vector2.right;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        expMask = 1 << LayerMask.NameToLayer("Exp");
     }
     protected new void Start()
     {
-        inventory = new List<Item>();
-        equipWeapons = new List<WeaponObject>();
-        direction = Vector2.right;
-
-        AddItem(ItemManager.Instance.GetItem("ITWE0002", 1));
-
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        expMask = 1 << LayerMask.NameToLayer("Exp");
-
         base.Start();
-        
+
+        AddItem(ItemManager.Instance.GetItem("ITWE0003"));
         UpdateUI();
     }
     private void Update()
@@ -40,9 +36,10 @@ public class Player : Unit
         if (!isAlive || isPauseObject)
             return;
 
+        // 경험치 구슬
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, magnetRange, expMask);
         foreach(Collider2D collider in colliders)
-            collider.GetComponent<ExpObject>().ContactPlayer(transform, AddExp);
+            collider.GetComponent<ExpObject>()?.ContactPlayer(transform, AddExp);
     }
 
     public void OnMovement(Vector2 input)
@@ -66,81 +63,67 @@ public class Player : Unit
         anim.SetBool("isRun", input != Vector2.zero);
     }
 
-    private int NeedTotalExp(int level)
+    protected override void AddExp(int amount)
     {
-        if (level <= 0)
-            return 0;
-
-        return Mathf.RoundToInt(5000f / 11 * (Mathf.Pow(1.11f, level - 1) - 1));
-    }
-    private void AddExp(int amount)
-    {
-        exp += amount;
-        if (exp >= NeedTotalExp(level + 1))
-            LevelUp();
-
+        base.AddExp(amount);
         UpdateUI();
     }
-    private void LevelUp()
+    protected override void LevelUp()
     {
-        level++;
-        Item[] randomItems = ItemManager.Instance.GetRandomItem(inventory);
         GameManager.Instance.SwitchPauseForce(true);
-        DrawUI.Instance.ShowDrawUI(randomItems, (select) => {
+        Item[] randomItems = ItemManager.Instance.GetRandomItem();
+        DrawUI.Instance.ShowDrawUI(randomItems, (select) =>
+        {
             AddItem(randomItems[select]);
             GameManager.Instance.SwitchPauseForce(false);
         });
     }
     private void AddItem(Item selectItem)
     {
-        // 만약 선택한 아이템이 존재한다면 교체한다. 없다면 새로 대입한다.
-        int index = inventory.FindIndex(item => item.id == selectItem.id);
-        if (index == -1)
+        // 선택한 아이템의 레벨을 1 증가시킨다.
+        selectItem.level += 1;
+
+        // 레벨이 1이라면 새로운 아이템이기 때문에 대입한다.
+        if (selectItem.level == 1)
         {
             inventory.Add(selectItem);
 
             // 새로운 무기를 선택했을 경우 인스턴스 생성.
             if (selectItem is WeaponItem)
             {
-                WeaponObject prefab = ItemManager.Instance.GetWeaponPrefab(selectItem.id);
-                WeaponObject newWeapon = Instantiate(prefab, transform);
-                equipWeapons.Add(newWeapon);
+                WeaponItem weaponItem = selectItem as WeaponItem;
+                WeaponObject newWeapon = Instantiate(weaponItem.weaponPrefab, transform);
+                newWeapon.Setup(this, weaponItem);
+                weaponList.Add(newWeapon);
             }
         }
-        else
-        {
-            // selectItem은 내가 가지고 있는 아이템 보다 레벨이 1 높은 새로운 객체다.
-            inventory[index] = selectItem;
-        }
 
-        UpdateStatus();
+        UpdateAbility();
     }
 
-
-    protected override void UpdateStatus()
+    protected override void UpdateAbility()
     {
-        var passives = from item in inventory
-                       where item is PassiveItem
-                       select item as PassiveItem;
+        base.UpdateAbility();
 
-        // 실제 적용 스테이터스 계산.
-        ResetIncrease();
-        foreach (var p in passives)
-            AddIncrease(p.status);
-
-        // 스테이터스 계산.
-        base.UpdateStatus();
-
-        // 장비 중인 무기 스테이터스 업데이트.
-        foreach (WeaponObject weapon in equipWeapons)
-            weapon.UpdateWeapon(finalStatus);
+        foreach (WeaponObject weaponObject in weaponList)
+            weaponObject.UpdateWaeponStatus();
     }
+    protected override Ability GetIncrease()
+    {
+        Ability increase = new Ability();
+        foreach(Item item in inventory)
+        {
+            if (item is PassiveItem)
+                increase += (item as PassiveItem).ability;
+        }
+        return increase;
+    }
+
     protected override void Dead()
     {
         anim.SetTrigger("onDead");
         enabled = false;
     }
-
 
     private void UpdateUI()
     {

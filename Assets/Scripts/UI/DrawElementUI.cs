@@ -16,8 +16,8 @@ public class DrawElementUI : MonoBehaviour
         nameText.text = item.itemName;
         descriptionText.text = item.description;
 
-        bool isNewItem = item.level == 1;
-        levelText.text = isNewItem ? "신규 무기!" : $"레벨 : {item.level}";
+        bool isNewItem = item.level + 1 == 1;
+        levelText.text = isNewItem ? "신규 무기!" : $"레벨 : {item.level + 1}";
         levelText.color = isNewItem ? Color.blue : Color.black;
     }
 }
