@@ -1,10 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
-public abstract class Weapon : RootBehaiour
+public abstract class WeaponObject : RootBehaiour
 {
-    public string id;
-
     private WeaponStatus status;
 
     public float power => status.power;                                         // 공격력.
@@ -38,10 +36,10 @@ public abstract class Weapon : RootBehaiour
     protected abstract void Initialize();
     protected abstract IEnumerator IEAttack();
     
-    public void UpdateWeapon(Unit owner, WeaponItem item)
+    public void UpdateWeapon(Ability ownerAbility)
     {
         // item의 레벨을 통해 기본 수치 + 성장 수치를 더해 무기 자체의 능력치를 계산.
         // 여기에 사용자의 어빌리티르 곱해 최종 능력치를 구한다.        
-        status = owner.ApplyAbility(item.status);
+        // status = itemInfo.status * ownerAbility;
     }
 }

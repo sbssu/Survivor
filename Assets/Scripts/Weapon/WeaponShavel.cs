@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponShavel : Weapon
+public class WeaponShavel : WeaponObject
 {
     [SerializeField] Melee prefab;
     [SerializeField] Transform rotatePivot;

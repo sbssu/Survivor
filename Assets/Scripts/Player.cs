@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Player : Unit
@@ -13,7 +14,7 @@ public class Player : Unit
     LayerMask expMask;
 
     List<Item> inventory;           // 소지 아이템의 정보.
-    List<Weapon> equipWeapons;      // 장비 아이템.
+    List<WeaponObject> equipWeapons;      // 장비 아이템.
 
     private void Awake()
     {
@@ -22,7 +23,7 @@ public class Player : Unit
     protected new void Start()
     {
         inventory = new List<Item>();
-        equipWeapons = new List<Weapon>();
+        equipWeapons = new List<WeaponObject>();
         direction = Vector2.right;
 
         AddItem(ItemManager.Instance.GetItem("ITWE0002", 1));
@@ -101,8 +102,8 @@ public class Player : Unit
             // 새로운 무기를 선택했을 경우 인스턴스 생성.
             if (selectItem is WeaponItem)
             {
-                Weapon prefab = ItemManager.Instance.GetWeaponPrefab(selectItem.id);
-                Weapon newWeapon = Instantiate(prefab, transform);
+                WeaponObject prefab = ItemManager.Instance.GetWeaponPrefab(selectItem.id);
+                WeaponObject newWeapon = Instantiate(prefab, transform);
                 equipWeapons.Add(newWeapon);
             }
         }
@@ -118,29 +119,21 @@ public class Player : Unit
 
     protected override void UpdateStatus()
     {
+        var passives = from item in inventory
+                       where item is PassiveItem
+                       select item as PassiveItem;
+
         // 실제 적용 스테이터스 계산.
         ResetIncrease();
-        foreach (Item item in inventory)
-        {
-            if (item is PassiveItem)
-            {
-                Ability ability = (item as PassiveItem).status;
-                AddIncrease(ability);
-            }
-        }
+        foreach (var p in passives)
+            AddIncrease(p.status);
 
+        // 스테이터스 계산.
         base.UpdateStatus();
 
         // 장비 중인 무기 스테이터스 업데이트.
-        foreach (Weapon weapon in equipWeapons)
-        {
-            Item targetItem = inventory.Find(w => w.id == weapon.id);
-            if (targetItem is WeaponItem)
-            {
-                WeaponItem weaponItem = targetItem as WeaponItem;
-                weapon.UpdateWeapon(this, weaponItem);
-            }
-        }
+        foreach (WeaponObject weapon in equipWeapons)
+            weapon.UpdateWeapon(finalStatus);
     }
     protected override void Dead()
     {

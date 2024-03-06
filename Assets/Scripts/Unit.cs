@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Unit : RootBehaiour
 {    
-    [SerializeField] Ability originStatus;        // 기본 수치.
+    [SerializeField]
+    Ability originStatus;        // 기본 수치.
     
     private Ability increaseStatus { get; set; }  // 증가 수치.
-    private Ability finalStatus { get; set; }     // 최종 수치.
+    protected Ability finalStatus { get; set; }     // 최종 수치.
 
     public float maxHp => finalStatus.hp;
     public float power => finalStatus.power;

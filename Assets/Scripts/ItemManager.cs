@@ -7,8 +7,6 @@ public class ItemManager : Singleton<ItemManager>
     [SerializeField] PassiveItem[] passiveInfos;        // 패시브 아이템 정보.
     [SerializeField] WeaponItem[] weaponInfos;          // 무기 아이템 정보.
 
-    [Header("Weapon Object")]
-    [SerializeField] Weapon[] weapons;
 
     public Item GetItem(string id, int forceLevel = 1)
     {
@@ -52,9 +50,13 @@ public class ItemManager : Singleton<ItemManager>
 
         return selected;
     }
-    public Weapon GetWeaponPrefab(string id)
+
+    public WeaponObject GetWeaponPrefab(string id)
     {
-        return System.Array.Find(weapons, weapon => weapon.id == id);
+        WeaponItem weapon = System.Array.Find(weaponInfos, info => info.id == id);
+        //weapon.weaponPrefab
+
+        return weapon.weaponPrefab;
     }
 
 }

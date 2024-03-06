@@ -2,7 +2,7 @@ using UnityEditorInternal.Profiling.Memory.Experimental;
 using UnityEngine;
 
 [System.Serializable]
-public class Item
+public abstract class Item
 {
     public string itemName;     // 아이템 이름.
     public string id;           // 고유 아이디.
@@ -11,6 +11,8 @@ public class Item
     public int level;
 
     public virtual Item Copy() { return null; }
+
+    public abstract Status GetStatus();
 }
 
 [System.Serializable]
@@ -18,6 +20,10 @@ public class PassiveItem : Item
 {
     public Ability status; // 기본 능력치.
 
+    public override Status GetStatus()
+    {
+        return status;
+    }
     public override Item Copy()
     {
         PassiveItem newItem = new PassiveItem();
@@ -35,12 +41,16 @@ public class PassiveItem : Item
 public class WeaponItem : Item
 {
     [Header("Weapon")]
-    public Sprite handSprite;       // 장비 스프라이트.
-    
-    [SerializeField] WeaponStatus origin;     // 능력치.
-    [SerializeField] WeaponStatus grow;       // 성장치.
+    public Sprite handSprite;                   // 장비 스프라이트.
+    public WeaponObject weaponPrefab;                 // 무기 프리팹.
 
-    public WeaponStatus status => origin + (grow * (level - 1));
+    [SerializeField] WeaponStatus origin;       // 능력치.
+    [SerializeField] WeaponStatus grow;         // 성장치.
+
+    public override Status GetStatus()
+    {
+        return origin + (grow * (level - 1));
+    }
 
     public override Item Copy()
     {

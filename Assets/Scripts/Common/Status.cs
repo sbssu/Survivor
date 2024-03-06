@@ -1,6 +1,8 @@
-using UnityEngine;
+[System.Serializable] public class Status
+{
 
-[System.Serializable] public struct Ability
+}
+[System.Serializable] public class Ability : Status
 {
     public float hp;        // 체력.
     public float power;     // 공격력.
@@ -17,7 +19,7 @@ using UnityEngine;
         return newAbility;
     }
 }
-[System.Serializable] public struct WeaponStatus
+[System.Serializable] public class WeaponStatus : Status
 {
     public float power;                 // 공격력.
     public float projectileCount;       // 투사체 개수.

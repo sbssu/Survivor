@@ -182,3 +182,6 @@ MonoBehaviour:
   id: ITWE0002
   prefab: {fileID: 3342004114462917658}
   fireRate: 0.2
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 128
