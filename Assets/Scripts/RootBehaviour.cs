@@ -11,7 +11,7 @@ public class RootBehaiour: MonoBehaviour
         GameManager.Instance.onPauseGame += OnPauseGame;
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         if(GameManager.Instance != null)
             GameManager.Instance.onPauseGame -= OnPauseGame;

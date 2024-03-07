@@ -25,6 +25,7 @@ public class DrawUI : Singleton<DrawUI>
     }
     public void OnSelectedItem(int index)
     {
+        AudioManager.Instance.PlaySe("select");
         selectEvent?.Invoke(index);
         window.SetActive(false);
     }

@@ -75,5 +75,7 @@ public class Gun : WeaponObject
         bullet.transform.rotation = Quaternion.AngleAxis(angle - 90f, Vector3.forward);     // z축 기준 회전량.
         bullet.transform.position = transform.position;                                     // 최초 위치 대입.
         bullet.gameObject.SetActive(true);                                                  // 오브젝트 활성화.
+
+        AudioManager.Instance.PlaySe("range");
     }
 }

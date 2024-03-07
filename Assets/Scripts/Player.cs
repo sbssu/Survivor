@@ -9,6 +9,8 @@ public class Player : Unit
     public Vector2 direction { get; private set; }
 
     [SerializeField] float magnetRange;
+    [SerializeField] Transform hpPivot;
+    [SerializeField] HpBar hpBar;
 
     List<Item> inventory;                   // 소지 아이템의 정보.
     List<WeaponObject> weaponList;          // 무기 오브젝트.
@@ -40,6 +42,10 @@ public class Player : Unit
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, magnetRange, expMask);
         foreach(Collider2D collider in colliders)
             collider.GetComponent<ExpObject>()?.ContactPlayer(transform, AddExp);
+
+        // 체력바의 위치와 값을 갱신한다.
+        hpBar.UpdateHpBar(hpPivot, hp, maxHp);
+       
     }
 
     public void OnMovement(Vector2 input)
@@ -70,12 +76,13 @@ public class Player : Unit
     }
     protected override void LevelUp()
     {
-        GameManager.Instance.SwitchPauseForce(true);
+        AudioManager.Instance.PlaySe("levelup");
+        GameManager.Instance.SwitchPause(true);
         Item[] randomItems = ItemManager.Instance.GetRandomItem();
         DrawUI.Instance.ShowDrawUI(randomItems, (select) =>
         {
             AddItem(randomItems[select]);
-            GameManager.Instance.SwitchPauseForce(false);
+            GameManager.Instance.SwitchPause(false);
         });
     }
     private void AddItem(Item selectItem)
@@ -123,6 +130,9 @@ public class Player : Unit
     {
         anim.SetTrigger("onDead");
         enabled = false;
+
+        hpBar.gameObject.SetActive(false);
+        GameManager.Instance.OnDeadPlayer();
     }
 
     private void UpdateUI()

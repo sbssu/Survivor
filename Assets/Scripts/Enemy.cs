@@ -109,6 +109,8 @@ public class Enemy : Unit
 
         ExpObject exp = ExpObjectPool.Instance.GetRandomExpObject();
         exp.transform.position = transform.position;
+
+        AudioManager.Instance.PlaySe("dead", 0.5f);
     }
     private IEnumerator IEDead()
     {
