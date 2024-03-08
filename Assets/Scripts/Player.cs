@@ -30,7 +30,6 @@ public class Player : Unit
     {
         base.Start();
 
-        AddItem(ItemManager.Instance.GetItem("ITWE0003"));
         UpdateUI();
     }
     private void Update()
@@ -60,7 +59,8 @@ public class Player : Unit
         // 입력값을 이동량으로 변환 후 대입.
         Vector3 movement = input;
         Vector3 nextPosition = transform.position + movement * speed * Time.deltaTime;
-        transform.position = Background.Instance.InBoundary(nextPosition, spriteRenderer.size);
+        //transform.position = Background.Instance.InBoundary(nextPosition, spriteRenderer.size);
+        transform.position = nextPosition;
 
         if (input.x != 0f)
             spriteRenderer.flipX = input.x < 0f;

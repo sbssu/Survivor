@@ -6,8 +6,11 @@ public class GameManager : Singleton<GameManager>
 {
     public event Action<bool> onPauseGame;      // 일시정지 이벤트.
     
+    public const float MAX_GAME_TIME = 600f;
+    public const int MAX_LEVEL = 30;
+
     public float gameTime;
-    const float MAX_GAME_TIME = 600f;
+    public int gameLevel;
 
     bool isGameClear;
     bool isPauseGame;
@@ -23,6 +26,7 @@ public class GameManager : Singleton<GameManager>
             return;
 
         gameTime += Time.deltaTime;
+        gameLevel = (int)(gameTime / MAX_GAME_TIME / MAX_LEVEL);
         if(!isGameClear && gameTime >= MAX_GAME_TIME)
         {
             isGameClear = true;

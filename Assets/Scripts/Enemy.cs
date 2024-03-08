@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Enemy : Unit
 {
+    [SerializeField] Ability grow;
     [SerializeField] Transform damagePivot;       // 데미지가 출력되는 기준.
 
     SpriteRenderer spriteRenderer;
@@ -80,7 +81,7 @@ public class Enemy : Unit
 
     protected override Ability GetIncrease()
     {
-        return new Ability();
+        return grow * GameManager.Instance.gameLevel;
     }
 
     public override void TakeDamage(float power, float knockback = 0)

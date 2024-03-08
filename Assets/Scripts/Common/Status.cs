@@ -1,3 +1,5 @@
+using static UnityEngine.GraphicsBuffer;
+
 [System.Serializable] public class Ability
 {
     public float hp;        // Ã¼·Â.
@@ -14,6 +16,16 @@
         newAbility.cooltime = origin.cooltime + target.cooltime;
         return newAbility;
     }
+    public static Ability operator *(Ability origin, float ratio)
+    {
+        Ability newAbility = new Ability();
+        newAbility.hp = origin.hp * ratio;
+        newAbility.power = origin.power * ratio;
+        newAbility.speed = origin.speed * ratio;
+        newAbility.cooltime = origin.cooltime * ratio;
+        return newAbility;
+    }
+
 }
 [System.Serializable] public class WeaponStatus
 {

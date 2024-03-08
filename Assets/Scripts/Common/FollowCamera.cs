@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FollowCamera : MonoBehaviour
+public class FollowCamera : Singleton<FollowCamera>
 {
     [SerializeField] Camera cam;
     [SerializeField] Transform target;
@@ -20,7 +20,7 @@ public class FollowCamera : MonoBehaviour
     void Update()
     {
         Vector3 destination = target.position + offset;
-        destination = Background.Instance.InBoundary(destination, camSize);
+        //destination = Background.Instance.InBoundary(destination, camSize);
         transform.position = Vector3.Lerp(transform.position, destination, lerpAmount * Time.deltaTime);
     }
 }
