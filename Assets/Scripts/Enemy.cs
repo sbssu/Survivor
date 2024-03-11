@@ -13,9 +13,9 @@ public class Enemy : Unit
 
     float delayTime;
 
-    protected new void Start()
+    public override void Setup()
     {
-        base.Start();
+        base.Setup();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid = GetComponent<Rigidbody2D>();
@@ -45,16 +45,7 @@ public class Enemy : Unit
             return;
 
         AttackToPlayer();
-
-        rigid.velocity = Vector2.MoveTowards(rigid.velocity, Vector2.zero, Time.deltaTime * 8f);
-        
-        Vector3 destination = Player.Instance.transform.position;
-        Vector3 dir = (destination - transform.position).normalized;
-        spriteRenderer.flipX = dir.x < 0;
-
-        // 넉백이 없을 때 (= 밀림이 없을 때)에만 움직일 수 있다.
-        if (rigid.velocity == Vector2.zero)
-            transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+        Movement();
     }
 
     private void AttackToPlayer()
@@ -70,6 +61,18 @@ public class Enemy : Unit
             target.TakeDamage(power);
             delayTime = cooltime;
         }
+    }
+    protected virtual void Movement()
+    {
+        rigid.velocity = Vector2.MoveTowards(rigid.velocity, Vector2.zero, Time.deltaTime * 8f);
+
+        Vector3 destination = Player.Instance.transform.position;
+        Vector3 dir = (destination - transform.position).normalized;
+        spriteRenderer.flipX = dir.x < 0;
+
+        // 넉백이 없을 때 (= 밀림이 없을 때)에만 움직일 수 있다.
+        if (rigid.velocity == Vector2.zero)
+            transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
     }
 
     protected override void OnPauseGame(bool isPause)
@@ -89,10 +92,16 @@ public class Enemy : Unit
         base.TakeDamage(power, knockback);
         TopUI.Instance.AppearDamage(damagePivot.position, power);
     }
+    public virtual void DeadForce()
+    {
+        hp = 0;
+        Dead();
+    }
 
     protected override void Hit(float knockback)
     {
-        anim.SetTrigger("onHit");
+        if(anim != null)
+            anim.SetTrigger("onHit");
 
         // 뒤로 밀기.
         if(knockback > 0f)

@@ -10,12 +10,12 @@ public class Player : Unit
 
     [SerializeField] float magnetRange;
     [SerializeField] Transform hpPivot;
-    [SerializeField] HpBar hpBar;
 
     List<Item> inventory;                   // 소지 아이템의 정보.
     List<WeaponObject> weaponList;          // 무기 오브젝트.
     SpriteRenderer spriteRenderer;          // 스프라이트 컨포넌트.
     LayerMask expMask;                      // 경험치 마스크.
+    HpBar hpBar;
 
     private void Awake()
     {
@@ -26,10 +26,11 @@ public class Player : Unit
         spriteRenderer = GetComponent<SpriteRenderer>();
         expMask = 1 << LayerMask.NameToLayer("Exp");
     }
-    protected new void Start()
+    public override void Setup()
     {
-        base.Start();
+        base.Setup();
 
+        hpBar = HpBar.Instance;
         UpdateUI();
     }
     private void Update()
@@ -85,7 +86,7 @@ public class Player : Unit
             GameManager.Instance.SwitchPause(false);
         });
     }
-    private void AddItem(Item selectItem)
+    public void AddItem(Item selectItem)
     {
         // 선택한 아이템의 레벨을 1 증가시킨다.
         selectItem.level += 1;

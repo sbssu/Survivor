@@ -22,16 +22,7 @@ public abstract class Unit : RootBehaiour
 
     protected Animator anim;
 
-    protected void Start()
-    {
-        anim = GetComponent<Animator>();
-        hp = int.MaxValue;
-        level = 1;
-        exp = 0;
-        killCount = 0;
-
-        UpdateAbility();
-    }
+    
 
     protected override void OnPauseGame(bool isPause)
     {
@@ -62,6 +53,16 @@ public abstract class Unit : RootBehaiour
     }
 
     // 능력치 계산
+    public virtual void Setup()
+    {
+        anim = GetComponent<Animator>();
+        hp = int.MaxValue;
+        level = 1;
+        exp = 0;
+        killCount = 0;
+
+        UpdateAbility();
+    }
     protected virtual void UpdateAbility()
     {
         // 실제 적용 스테이터스 계산.

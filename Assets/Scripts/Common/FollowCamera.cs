@@ -9,18 +9,23 @@ public class FollowCamera : Singleton<FollowCamera>
     Vector3 offset;
     Vector2 camSize;
 
-    void Start()
-    {
-        offset = transform.position - target.position;
-        camSize.x = cam.orthographicSize * 2f * (Screen.width / (float)Screen.height);
-        camSize.y = camSize.x;
-    }
-
     // Update is called once per frame
     void Update()
     {
+        if (target == null)
+            return;
+
         Vector3 destination = target.position + offset;
         //destination = Background.Instance.InBoundary(destination, camSize);
         transform.position = Vector3.Lerp(transform.position, destination, lerpAmount * Time.deltaTime);
+    }
+
+    public void Setup(Transform target)
+    {
+        this.target = target;
+
+        offset = transform.position - target.position;
+        camSize.x = cam.orthographicSize * 2f * (Screen.width / (float)Screen.height);
+        camSize.y = camSize.x;
     }
 }

@@ -8,7 +8,6 @@ public class Joystick : MonoBehaviour
     [SerializeField] RectTransform stickParent;
     [SerializeField] RectTransform stickRect;
     [SerializeField] Vector2 dead;
-    [SerializeField] UnityEvent<Vector2> onMove;
 
     float maxDistance;  // 최대 거리
     bool isPress;       // 누르는 중인가?
@@ -68,7 +67,7 @@ public class Joystick : MonoBehaviour
                 input.y = 0f;
 
             // 이벤트 호출.
-            onMove?.Invoke(input);
+            Player.Instance.OnMovement(input);
         }
     }
 }

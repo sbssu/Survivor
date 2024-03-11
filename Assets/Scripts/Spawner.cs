@@ -15,44 +15,54 @@ public class Spawner : RootBehaiour
 
     [Header("Object")]
     [SerializeField] SpwanEnemy[] enemyPrefabs;
+    [SerializeField] GameObject reaper;
 
-    [Header("Position")]
-    [SerializeField] Transform pivot;       // 기준점.
+    [Header("Position")]    
     [SerializeField] float radius;          // 반지름.
     [SerializeField] float spawnRate;       // 스폰 주기.
     [SerializeField] float offsetRate;      // 스폰 주기 차이.
 
+    bool isSpawn;
     float rateTime;
 
     private void Start()
     {
         rateTime = spawnRate;
-
-        Debug.Log("확률표");
-        Debug.Log("=======================");
-        float totalWeight = enemyPrefabs.Select(e => e.spawnWeight).Sum();
-        foreach(var enemy in enemyPrefabs)
-            Debug.Log($"{enemy.prefab.name} : {enemy.spawnWeight / totalWeight * 100f}%");
-        Debug.Log("=======================");
-
+        reaper.SetActive(false);
     }
 
     void Update()
     {
-        if (isPauseObject)
+        if (isPauseObject || !isSpawn)
             return;
 
         rateTime -= Time.deltaTime;
         if (rateTime <= 0.0f)
         {
             // 길이가 1인 벡터를 랜덤 방향으로 만들어 radius만큼 늘인다.
-            Vector2 position = (Vector2)pivot.position + Random.insideUnitCircle.normalized * radius;
+            Vector2 position = (Vector2)Player.Instance.transform.position + Random.insideUnitCircle.normalized * radius;
             Enemy newEnemy = Instantiate(GetEnemyPrefab(), transform);
             newEnemy.transform.position = position;
+            newEnemy.Setup();
             rateTime = spawnRate - (offsetRate * GameManager.Instance.gameLevel);
         }
-    }
 
+        // 시간이 다 흘러서 몬스터 전체 삭제.
+        if (GameManager.Instance.gameTime >= GameManager.MAX_GAME_TIME)
+        {
+            reaper.SetActive(true);
+            Enemy[] enemies = FindObjectsOfType<Enemy>();
+            foreach (Enemy enemy in enemies)
+                enemy.DeadForce();
+
+            enabled = false;
+        }
+    }
+        
+    public void SwitchSpawner(bool isOn)
+    {
+        isSpawn = isOn;
+    }
     private Enemy GetEnemyPrefab()
     {
         int level = GameManager.Instance.gameLevel;
@@ -76,8 +86,8 @@ public class Spawner : RootBehaiour
     private void OnDrawGizmosSelected()
     {
         Vector3 position = transform.position;
-        if (pivot != null)
-            position = pivot.position;
+        if (Player.Instance != null)
+            position = Player.Instance.transform.position;
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(position, radius);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HpBar : MonoBehaviour
+public class HpBar : Singleton<HpBar>
 {
     [SerializeField] Slider slider;
 
